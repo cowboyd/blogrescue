@@ -1,0 +1,22 @@
+Date: Mon Jun 11 13:11:05 -0500 2007
+Summary: A (very) brief note regular expressions in mod_rewrite across different versions.
+Categories: Tips
+
+# When Using Mod Rewrite, Remember That The Version Counts
+
+Pro Tip: Which regular expressions work depends on the version of Apache/mod_rewrite that you're using. I recently tested the following rewrite rule on Apache2
+<code>
+RewriteRule ^archives/(\d+).html http://www.thefrontside.net/map2new.php?$1 [R]
+</code>
+
+I wanted to match files like archives/000532.html.
+
+But when it came time to deploy, it didn't work. Turns out the environment I was deploying to was using a different version of Apache. That's bad practice of course, but aside from that, the little gotcha was that the regular expression interpreter was different in different versions of Apache, and in this case, its behavior differed not only from the newer version but also from the behavior of most regexp engine's out there. Specifically, the "digit" literal <code>\d</code> is not understood by older versions (which interpret it as a literal "d"). 
+
+Instead I had to use [0-9]
+
+<code>
+RewriteRule ^archives/([0-9]+).html http://www.thefrontside.net/map2new.php?$1 [R]
+</code>
+
+This is a very specific nugget, but hopefully it will save someone a headache down the road. Just remember, if your mod_rewrite regexp isn't working, <em>check the specific version of the engine</em>, and make sure your regexp is one that it will understand.
